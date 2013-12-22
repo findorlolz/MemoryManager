@@ -1,5 +1,5 @@
 #include "memorymanager.h"
-#include "membuffer.h"
+
 /*include only for debuging state*/
 //#include <vld.h>
 
@@ -25,19 +25,19 @@ int main()
 	stack->popStack();
 	std::cout << "Type: " << stack->getType() << std::endl;
 	std::cout << "Space :" << stack->getSpaceLeft() << "/" << stack->getTotalSpace() << std::endl;
-	test* t1 = (test*) stack->pushStack(sizeof(test));
+	test* t1 = (test*) stack->alloc(sizeof(test));
 	t1->t = 1.521f;
 	std::cout << "1.521f = " << t1->t << std::endl;
 	std::cout << "Space :" << stack->getSpaceLeft() << "/" << stack->getTotalSpace() << std::endl;
 	stack->popStack();
 	std::cout << "After pop - Space :" << stack->getSpaceLeft() << "/" << stack->getTotalSpace() << std::endl;
-	test* t2 = ptr<test>(stack->pushStack(sizeof(test)));
+	test* t2 = ptr<test>(stack->alloc(sizeof(test)));
 	t2->t = 2.521f;
 	std::cout << "2.52123f = " << t2->t << std::endl;
 	std::cout << "Space :" << stack->getSpaceLeft() << "/" << stack->getTotalSpace() << std::endl;
 	for(size_t i = 0; i < 9; ++i)
 	{
-		t2 = ptr<test>(stack->pushStack(sizeof(test)));
+		t2 = ptr<test>(stack->alloc(sizeof(test)));
 		t2->t = i;
 	}
 	std::cout << "8 = " << t2->t << std::endl;
@@ -49,14 +49,14 @@ int main()
 }*/
 
 //Test membuffer
-/*
+
 int main()
 {
 	MemBuffer* buffer = new MemBuffer(sizeof(test) * 10);
 	std::cout << "pre ready: 0/" << buffer->isGood() << std::endl;
 	buffer->startUp();
 	std::cout << "post ready: 1/" << buffer->isGood() << std::endl;
-	test* t1 = ptr<test>(buffer->pushBuffer(sizeof(test)));
+	test* t1 = ptr<test>(buffer->alloc(sizeof(test)));
 	t1->t = 2.0f;
 	std::cout << "2.0 = " << t1->t << std::endl;
 	buffer->clear();
@@ -65,8 +65,8 @@ int main()
 	std::cout << "9 = " << t1->t << std::endl;
 	system("pause");
 	return 0;
-}*/
-
+}
+/*
 int main()
 {
 	MemoryManager manager = MemoryManager::get();
@@ -82,3 +82,4 @@ int main()
 	system("pause");
 	return 0;
 }
+*/

@@ -49,6 +49,47 @@ protected:
 
 private:
 };
+
+class MemStack : public MemContainer
+{
+public:
+	explicit MemStack(size_t size) : MemContainer(size) {}
+	~MemStack() {}
+
+	void startUp();
+	void shutDown();
+	unsigned char* alloc(size_t size) { return pushStack(size); }
+
+	void popStack();
+private:
+	unsigned char* pushStack(size_t);
+
+	//RO3
+	MemStack& operator=(MemStack& other);
+	MemStack(MemStack& other);
+};
+
+class MemBuffer : public MemContainer
+{
+public:
+	explicit MemBuffer(size_t size) : MemContainer(size) {}
+	~MemBuffer() {}
+
+	//Virtuals
+	void startUp();
+	void shutDown();
+	unsigned char* alloc(size_t size) { return pushBuffer(size); }
+
+	//Specific
+	void clear();
+
+private:
+	unsigned char* pushBuffer(size_t);
+
+	//RO3
+	MemBuffer& operator=(MemBuffer& other);
+	MemBuffer(MemBuffer& other);
+};
 	
 template<typename T>
 static T* ptr(unsigned char*p) { return reinterpret_cast<T*>(p);} 

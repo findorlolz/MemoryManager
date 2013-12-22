@@ -18,27 +18,15 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\membuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\memcontainer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\memstack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\membuffer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\memcontainer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\memorymanager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\memstack.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

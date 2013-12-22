@@ -1,7 +1,6 @@
 #pragma once
 
-#include "memstack.h"
-#include "membuffer.h"
+#include "memcontainer.h"
 
 #include <vector>
 #include <iostream>
