@@ -10,6 +10,18 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\membuffer.cpp" />
+    <ClCompile Include="src\memcontainer.cpp" />
+    <ClCompile Include="src\memstack.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\membuffer.h" />
+    <ClInclude Include="src\memcontainer.h" />
+    <ClInclude Include="src\memorymanager.h" />
+    <ClInclude Include="src\memstack.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A3226B3E-B071-486C-BB30-BD60EEE93CA8}</ProjectGuid>
     <RootNamespace>MemoryManager20</RootNamespace>
@@ -41,6 +53,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Configuration)\build</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -66,18 +79,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="membuffer.h" />
-    <ClInclude Include="memcontainer.h" />
-    <ClInclude Include="memorymanager.h" />
-    <ClInclude Include="memstack.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="membuffer.cpp" />
-    <ClCompile Include="memcontainer.cpp" />
-    <ClCompile Include="memstack.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

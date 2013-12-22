@@ -15,31 +15,31 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="memorymanager.h">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="memcontainer.h">
+    </ClCompile>
+    <ClCompile Include="src\membuffer.cpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="memstack.h">
+    </ClCompile>
+    <ClCompile Include="src\memcontainer.cpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="membuffer.h">
+    </ClCompile>
+    <ClCompile Include="src\memstack.cpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="memstack.cpp">
+    <ClInclude Include="src\membuffer.h">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="memcontainer.cpp">
+    </ClInclude>
+    <ClInclude Include="src\memcontainer.h">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
+    </ClInclude>
+    <ClInclude Include="src\memorymanager.h">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="membuffer.cpp">
+    </ClInclude>
+    <ClInclude Include="src\memstack.h">
       <Filter>Source Files</Filter>
-    </ClCompile>
+    </ClInclude>
   </ItemGroup>
 </Project>

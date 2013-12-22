@@ -1,6 +1,7 @@
 #include "memorymanager.h"
 #include "membuffer.h"
-#include <vld.h>
+/*include only for debuging state*/
+//#include <vld.h>
 
 #include <iostream>
 
