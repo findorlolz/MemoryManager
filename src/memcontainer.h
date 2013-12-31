@@ -3,57 +3,67 @@
 /*This is abstract class for different memory stuctures
 Niklas Smal Oct. 2013*/
 
+#include <vector>
+#include <iostream>
 #include <cstdlib>
 #include <cassert>
 
-enum memContainerType{
-	STACK, POOL, BUFFER
+enum MemContainerType
+{
+	MemContainerType_STACK, 
+	MemContainerType_POOL, 
+	MemContainerType_BUFFER
 };
 
-enum memContainerState{
-	BROKEN, READY, FULL
+enum MemContainerState
+{
+	MemContainerState_BROKEN, 
+	MemContainerState_READY, 
+	MemContainerState_FULL
 };
 
+enum MemContainerVersion
+{
+	MemContainerVersion_DEBUG,
+	MemContainerVersion_RELEASE
+};
 
 class MemContainer
 {
 public:
-	MemContainer(size_t size) : totalSpace_(size) 
-	{
-		state_ = BROKEN;
-	}
+	MemContainer(const size_t size = 0) : 
+		totalSpace_(size),
+		state_(MemContainerState_BROKEN)
+	{}
 
 	virtual ~MemContainer(){}
 
-	virtual void startUp() = 0;
-	virtual void shutDown() = 0;
-	virtual unsigned char* alloc(size_t) = 0;
+	virtual void startUp();
+	virtual void shutDown();
+	virtual unsigned char* alloc(size_t);
 
-	bool isGood() const { return state_ == READY; }
+	bool isValid() const { return state_ == MemContainerState_READY; }
 
 	//Accessories
-	memContainerType getType() const { return type_; }
 	size_t getSpaceLeft() const { return spaceLeft_; }
 	const size_t getTotalSpace() const { return totalSpace_; }
 
 protected:
-	memContainerType type_;
-	memContainerState state_;
+	MemContainerState state_;
 	unsigned char* cursor_;
-	unsigned char* begin_;
 	const size_t totalSpace_;
 	size_t spaceLeft_;
+	unsigned char* begin_;
 
-	bool isRoom(size_t) const;
-	bool isEmpty() const;
+	inline bool isRoom(size_t) const;
+	inline bool isEmpty() const;
 
-private:
 };
 
 class MemStack : public MemContainer
 {
 public:
-	explicit MemStack(size_t size) : MemContainer(size) {}
+	explicit MemStack(const size_t size) : MemContainer(size) {}
 	~MemStack() {}
 
 	void startUp();
@@ -72,7 +82,7 @@ private:
 class MemBuffer : public MemContainer
 {
 public:
-	explicit MemBuffer(size_t size) : MemContainer(size) {}
+	explicit MemBuffer(const size_t size) : MemContainer(size) {}
 	~MemBuffer() {}
 
 	//Virtuals
@@ -90,6 +100,25 @@ private:
 	MemBuffer& operator=(MemBuffer& other);
 	MemBuffer(MemBuffer& other);
 };
-	
-template<typename T>
-static T* ptr(unsigned char*p) { return reinterpret_cast<T*>(p);} 
+
+class MemPool : public MemContainer
+{
+public:
+	explicit MemPool(const size_t sizeOfBlock, const size_t numberOfBlocks) : 
+	MemContainer(sizeOfBlock*numberOfBlocks),
+		blockSize_(sizeOfBlock)
+	{}
+	~MemPool() {}
+
+	virtual void startUp(const size_t sizeOfBlock, const size_t numberOfBlocks);
+	virtual void shutDown();
+	unsigned char* alloc(size_t size);
+
+private:
+	size_t blockSize_;
+	unsigned char* lastMemberOfPool_;
+
+	//RO3
+	MemPool& operator=(MemPool& other);
+	MemPool(MemBuffer& other);
+};

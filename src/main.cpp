@@ -1,7 +1,7 @@
 #include "memorymanager.h"
 
 /*include only for debuging state*/
-//#include <vld.h>
+#include <vld.h>
 
 #include <iostream>
 
@@ -49,7 +49,7 @@ int main()
 }*/
 
 //Test membuffer
-
+/*
 int main()
 {
 	MemBuffer* buffer = new MemBuffer(sizeof(test) * 10);
@@ -65,21 +65,38 @@ int main()
 	std::cout << "9 = " << t1->t << std::endl;
 	system("pause");
 	return 0;
-}
-/*
+}*/
+
+//Test for manager funtionalities
+
 int main()
 {
 	MemoryManager manager = MemoryManager::get();
 	manager.startUp();
 
 
-	size_t stackIndex = manager.initAllocation(STACK, sizeof(float) * 20);
-	test t = *(manager.alloc<test>(stackIndex));
-	t.t = 3;
-	std::cout << "3 = " << t.t << std::endl;
+	size_t stackIndex1 = manager.initAllocation(MemContainerType_STACK, sizeof(float) * 20);
+	test t1 = *(manager.alloc<test>(stackIndex1));
+	t1.t = 1;
+	std::cout << "1 = " << t1.t << std::endl;
+	test t2 = *(manager.alloc<test>(stackIndex1));
+	t2.t = 2;
+	std::cout << "2 = " << t2.t << std::endl;
+	test t3 = *(manager.alloc<test>(stackIndex1));
+	t3.t = 3;
+	std::cout << "3 = " << t3.t << std::endl;
+	std::cout << "2 = " << t2.t << std::endl;
+
+
+	size_t stackIndex2 = manager.initAllocation(MemContainerType_STACK, sizeof(float) * 20);
+	test t4 = *(manager.alloc<test>(stackIndex1));
+	t4.t = 4;
+	std::cout << "4 = " << t4.t << std::endl;
+	std::cout << "1 = " << t1.t << std::endl;
+
 	manager.shutDown();
 
 	system("pause");
 	return 0;
 }
-*/
+
