@@ -31,6 +31,12 @@ unsigned char* MemContainer::alloc(size_t)
 	return nullptr;
 }
 
+void MemContainer::release(unsigned char*)
+{
+	if(MemoryManager::getVersion() == MemContainerVersion_DEBUG)
+		assert("ERROR - Releasing memory address from unvalid container");
+}
+
 void MemStack::startUp()
 {
 	unsigned char* ptr = reinterpret_cast<unsigned char*>(malloc(totalSpace_ + sizeof(char*)));
@@ -63,6 +69,7 @@ unsigned char* MemStack::pushStack(size_t size)
 		}
 		return nullptr;
 	}
+
 	spaceLeft_ -= size; 
 	unsigned char* address = cursor_;
 	cursor_ += size;
@@ -167,14 +174,21 @@ void MemPool::shutDown()
 
 unsigned char* MemPool::alloc(size_t size)
 {
-	if(isRoom(blockSize_))
+	if(!isRoom(blockSize_))
 	{
 		if(MemoryManager::getVersion() == MemContainerVersion_DEBUG)
 		{
 			assert(state_ == MemContainerState_READY && "ERROR - Allocating from invalid memory pool");
-			assert(cursor_ != nullptr && "ERROR - Allocating from full memory pool");	
+			assert(spaceLeft_ > size && "ERROR - Allocating from full memory pool");	
 		}
 		return nullptr;
+	}
+
+	if(MemoryManager::getVersion() == MemContainerVersion_DEBUG)
+	{
+		std::cout << "Cursor: " << reinterpret_cast<size_t>(cursor_) << std::endl;
+		assert(cursor_ != nullptr && "ERROR - MemoryPool has been corrupted");
+		assert(state_ == MemContainerState_READY && "ERROR - Allocating from invalid memory pool");
 	}
 
 	unsigned char* r = cursor_;
@@ -184,4 +198,23 @@ unsigned char* MemPool::alloc(size_t size)
 	return r;
 }
 
-//TODO Erase member from pool
+void MemPool::releaseAddress(unsigned char* ptr)
+{
+	if(MemoryManager::getVersion() == MemContainerVersion_DEBUG)
+	{
+		size_t p = reinterpret_cast<size_t>(ptr);
+		assert(state_ == MemContainerState_READY && "ERROR - Releasing from invalid memory pool");
+		assert( p > reinterpret_cast<size_t>(begin_) && "ERRO - Releasing in memeroy pool from address that doesn't match malloced block");
+		assert( p < (reinterpret_cast<size_t>(begin_)+totalSpace_) && "ERRO - Releasing in memeroy pool from address that doesn't match malloced block");	
+	}
+
+	if(cursor_ == nullptr)
+		cursor_ = ptr;
+
+	unsigned char** tmp = reinterpret_cast<unsigned char**>(lastMemberOfPool_);
+	tmp[0] = ptr;
+	tmp = reinterpret_cast<unsigned char**>(ptr);
+	tmp[0] = nullptr;
+	lastMemberOfPool_ = ptr;
+	spaceLeft_ += blockSize_;
+}

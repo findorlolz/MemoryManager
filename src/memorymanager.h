@@ -32,6 +32,15 @@ public:
 	template<typename T>
 	static T* alloc(size_t index) { return get().allocCall<T>(index); }
 
+	/*
+	This is a release interface for used memory types. It's function depends on the type of container in question:
+	-For stack, it pops the last element of the stack
+	-For buffer, entire buffer is cleared
+	-For 
+	*/
+	template<typename T>
+	static void release(size_t index, T* ptr = nullptr) { get().releaseCall(index, reinterpret_cast<unsigned char*>(ptr)); }
+
 
 private:
 	size_t maxContainers_;
@@ -50,4 +59,6 @@ private:
 
 	template<typename T>
 	T* allocCall(size_t index) 	{ return reinterpret_cast<T*>(containers_[index]->alloc(sizeof(T))); }
+
+	void releaseCall(size_t index, unsigned char* ptr = nullptr) { containers_[index]->release(ptr); }
 };

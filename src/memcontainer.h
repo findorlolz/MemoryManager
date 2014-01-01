@@ -41,6 +41,7 @@ public:
 	virtual void startUp();
 	virtual void shutDown();
 	virtual unsigned char* alloc(size_t);
+	virtual void release(unsigned char* = nullptr);
 
 	bool isValid() const { return state_ == MemContainerState_READY; }
 
@@ -66,12 +67,13 @@ public:
 	explicit MemStack(const size_t size) : MemContainer(size) {}
 	~MemStack() {}
 
-	void startUp();
-	void shutDown();
-	unsigned char* alloc(size_t size) { return pushStack(size); }
+	virtual void startUp();
+	virtual void shutDown();
+	virtual unsigned char* alloc(size_t size) { return pushStack(size); }
+	virtual void release(unsigned char* = nullptr) { popStack(); }
 
-	void popStack();
 private:
+	void popStack();
 	unsigned char* pushStack(size_t);
 
 	//RO3
@@ -86,14 +88,13 @@ public:
 	~MemBuffer() {}
 
 	//Virtuals
-	void startUp();
-	void shutDown();
-	unsigned char* alloc(size_t size) { return pushBuffer(size); }
-
-	//Specific
-	void clear();
+	virtual void startUp();
+	virtual void shutDown();
+	virtual unsigned char* alloc(size_t size) { return pushBuffer(size); }
+	virtual void release(unsigned char* = nullptr) { clear(); }
 
 private:
+	void clear();
 	unsigned char* pushBuffer(size_t);
 
 	//RO3
@@ -112,11 +113,14 @@ public:
 
 	virtual void startUp(const size_t sizeOfBlock, const size_t numberOfBlocks);
 	virtual void shutDown();
-	unsigned char* alloc(size_t size);
+	virtual unsigned char* alloc(size_t size);
+	virtual void release(unsigned char* ptr = nullptr) { releaseAddress(ptr); }
+
 
 private:
 	size_t blockSize_;
 	unsigned char* lastMemberOfPool_;
+	void releaseAddress(unsigned char*);
 
 	//RO3
 	MemPool& operator=(MemPool& other);

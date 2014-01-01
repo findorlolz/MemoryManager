@@ -1,4 +1,5 @@
 #include "memorymanager.h"
+#include <omp.h>
 
 /*include only for debuging state*/
 #include <vld.h>
@@ -6,7 +7,8 @@
 #include <iostream>
 
 /*
-This is main function for testing different memory containers
+This is main function for testing different memory containers.
+THESE MIGHT BE OUT OF DATE!
 Niklas Smal Oct. 2013
 */
 
@@ -67,35 +69,71 @@ int main()
 	return 0;
 }*/
 
-//Test for manager funtionalities
-
+//Test for manager funtionalities and memstack
+/*
 int main()
 {
 	MemoryManager manager = MemoryManager::get();
 	manager.startUp();
 
 
-	size_t stackIndex1 = manager.initAllocation(MemContainerType_STACK, sizeof(float) * 20);
-	test t1 = *(manager.alloc<test>(stackIndex1));
-	t1.t = 1;
-	std::cout << "1 = " << t1.t << std::endl;
-	test t2 = *(manager.alloc<test>(stackIndex1));
-	t2.t = 2;
-	std::cout << "2 = " << t2.t << std::endl;
-	test t3 = *(manager.alloc<test>(stackIndex1));
-	t3.t = 3;
-	std::cout << "3 = " << t3.t << std::endl;
-	std::cout << "2 = " << t2.t << std::endl;
-
-
-	size_t stackIndex2 = manager.initAllocation(MemContainerType_STACK, sizeof(float) * 20);
-	test t4 = *(manager.alloc<test>(stackIndex1));
-	t4.t = 4;
-	std::cout << "4 = " << t4.t << std::endl;
-	std::cout << "1 = " << t1.t << std::endl;
+	size_t stackIndex1 = manager.initAllocation(MemContainerType_POOL, sizeof(float), 3);
+	std::cout << "Alloc 1" << std::endl;
+	test* t1 = manager.alloc<test>(stackIndex1);
+	t1->t = 1;
+	std::cout << "1 = " << t1->t << std::endl;
+	std::cout << "Alloc 2" << std::endl;
+	test* t2 = manager.alloc<test>(stackIndex1);
+	t2->t = 2;
+	std::cout << "2 = " << t2->t << std::endl;
+	std::cout << "Alloc 3" << std::endl;
+	test* t3 = manager.alloc<test>(stackIndex1);
+	t3->t = 3;
+	std::cout << "3 = " << t3->t << std::endl;
+	std::cout << "2 = " << t2->t << std::endl;
+	
+	std::cout << "Release 3" << std::endl;
+	manager.release<test>(stackIndex1, t3);
+	std::cout << "Alloc 4" << std::endl;
+	test* t4 = manager.alloc<test>(stackIndex1);
+	t4->t = 4;
+	std::cout << "4 = " << t4->t << std::endl;
+	std::cout << "1 = " << t1->t << std::endl;
 
 	manager.shutDown();
 
+	system("pause");
+	return 0;
+}
+*/
+
+int main()
+{
+	MemoryManager manager = MemoryManager::get();
+	manager.startUp();
+
+	std::cout << "Normal array   ";
+	double start = omp_get_wtime();
+	size_t* testArray = new size_t[100000];
+	for(auto i = 0u; i < 100000; i++)
+	{
+		testArray[i] = i;
+	}
+	double end = omp_get_wtime();
+	std::cout << "Timer: " << end - start << std::endl;
+	delete[] testArray;
+
+	std::cout << "Std::vector with push in each  ";
+	start = omp_get_wtime();
+	std::vector<size_t> testVector1;
+	for(auto i = 0u; i < 100000; i++)
+	{
+		testVector1.push_back(i);
+	}
+	end = omp_get_wtime();
+	std::cout << "Timer: " << end - start << std::endl;
+	
+	manager.shutDown();
 	system("pause");
 	return 0;
 }
