@@ -319,6 +319,24 @@ int main()
 	}
 	std::cout << total/(double) run2 << std::endl;
 
+	std::cout << "YOLO Memory buffer direct access:	";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		YoloMemBuffer buffer;
+		buffer.startUp(s*run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = reinterpret_cast<test*>(buffer.alloc(s));
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		buffer.shutDown();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
 	std::cout << "YOLO Memory pool direct access:		";
 	total = 0;
 	for(auto j = 0u; j < run2; j++)

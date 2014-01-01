@@ -255,7 +255,7 @@ unsigned char* YoloMemPool::alloc()
 	return r;
 }
 
-void YoloMemPool::releaseAddress(unsigned char* ptr)
+void YoloMemPool::release(unsigned char* ptr)
 {
 	if(cursor_ == nullptr)
 		cursor_ = ptr;
@@ -265,4 +265,30 @@ void YoloMemPool::releaseAddress(unsigned char* ptr)
 	tmp = reinterpret_cast<unsigned char**>(ptr);
 	tmp[0] = nullptr;
 	lastMemberOfPool_ = ptr;
+}
+
+void YoloMemBuffer::startUp(const size_t s)
+{
+	unsigned char* ptr = reinterpret_cast<unsigned char*>(malloc(s));
+	begin_ = ptr;
+	cursor_ = ptr;
+}
+
+void YoloMemBuffer::shutDown()
+{
+	free(begin_);
+	begin_ = nullptr;
+	cursor_ = nullptr;
+}
+
+void YoloMemBuffer::clear()
+{
+	cursor_ = begin_;
+}
+
+unsigned char* YoloMemBuffer::alloc(size_t size)
+{
+	unsigned char* address = cursor_;
+	cursor_ += size;
+	return address;
 }

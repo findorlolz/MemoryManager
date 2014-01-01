@@ -137,10 +137,10 @@ public:
 	{}
 	~YoloMemPool() {}
 
-	void startUp(const size_t sizeOfBlock, const size_t numberOfBlocks);
+	void startUp(const size_t, const size_t);
 	void shutDown();
 	unsigned char* alloc();
-	void release(unsigned char* ptr = nullptr) { releaseAddress(ptr); }
+	void release(unsigned char*);
 
 
 private:
@@ -148,9 +148,29 @@ private:
 	unsigned char* lastMemberOfPool_;
 	unsigned char* begin_;
 	unsigned char* cursor_;
-	void releaseAddress(unsigned char*);
 
 	//RO3
 	YoloMemPool& operator=(YoloMemPool& other);
 	YoloMemPool(YoloMemPool& other);
+};
+
+class YoloMemBuffer
+{
+public:
+	YoloMemBuffer()
+	{}
+	~YoloMemBuffer() {}
+
+	void startUp(const size_t);
+	void shutDown();
+	unsigned char* alloc(size_t size);
+	void clear();
+
+private:
+	unsigned char* begin_;
+	unsigned char* cursor_;
+
+	//RO3
+	YoloMemBuffer& operator=(YoloMemBuffer& other);
+	YoloMemBuffer(YoloMemBuffer& other);
 };
