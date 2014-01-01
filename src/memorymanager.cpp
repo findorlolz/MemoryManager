@@ -4,7 +4,7 @@ void MemoryManager::startUpCall(MemContainerVersion v)
 {
 		version_ = v;
 		maxContainers_ = 0;
-		largerIndexList(100);
+		largerIndexList(1000);
 }
 
 void MemoryManager::shutDownCall()

@@ -2,7 +2,7 @@
 #include <omp.h>
 
 /*include only for debuging state*/
-#include <vld.h>
+//#include <vld.h>
 
 #include <iostream>
 
@@ -13,7 +13,7 @@ Niklas Smal Oct. 2013
 */
 
 struct test{
-	float t;
+	size_t t;
 };
 
 //Test memStack
@@ -69,7 +69,7 @@ int main()
 	return 0;
 }*/
 
-//Test for manager funtionalities and memstack
+//Test for manager funtionalities and mempool
 /*
 int main()
 {
@@ -107,32 +107,235 @@ int main()
 }
 */
 
+//Memory containers benchmarking
+
 int main()
 {
 	MemoryManager manager = MemoryManager::get();
-	manager.startUp();
-
-	std::cout << "Normal array   ";
-	double start = omp_get_wtime();
-	size_t* testArray = new size_t[100000];
-	for(auto i = 0u; i < 100000; i++)
+	const size_t run1 = 1000000;
+	const size_t run2 = 100;
+	double total, start, end;
+	const size_t s = sizeof(test);
+	manager.startUp(MemContainerVersion_RELEASE);
+	std::cout << "Normal array				";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
 	{
-		testArray[i] = i;
+		start = omp_get_wtime();
+		size_t* testArray = new size_t[run1];
+		for(auto i = 0u; i < run1; i++)
+		{
+			testArray[i] = i;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+		delete[] testArray;
 	}
-	double end = omp_get_wtime();
-	std::cout << "Timer: " << end - start << std::endl;
-	delete[] testArray;
+	std::cout << total/(double) run2 << std::endl;
 
-	std::cout << "Std::vector with push in each  ";
-	start = omp_get_wtime();
-	std::vector<size_t> testVector1;
-	for(auto i = 0u; i < 100000; i++)
+	std::cout << "Std::vector with push in each		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
 	{
-		testVector1.push_back(i);
+		start = omp_get_wtime();
+		std::vector<test> testVector1;
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
 	}
-	end = omp_get_wtime();
-	std::cout << "Timer: " << end - start << std::endl;
+	std::cout << total/(double) run2 << std::endl;
 	
+	std::cout << "Std::vector with reverse		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		std::vector<test> testVector1;
+		testVector1.reserve(run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+		end = omp_get_wtime();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Memory buffer (release):		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		size_t index = manager.initAllocation(MemContainerType_BUFFER, run1*s);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = manager.alloc<test>(index);
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Memory pool(release):			";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		size_t index = manager.initAllocation(MemContainerType_POOL, s, run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = manager.alloc<test>(index);
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	manager.setVersion(MemContainerVersion_DEBUG);
+
+	std::cout << "Memory buffer (debug):			";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		size_t index = manager.initAllocation(MemContainerType_BUFFER, run1*s);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = manager.alloc<test>(index);
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Memory pool(debug):			";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		size_t index = manager.initAllocation(MemContainerType_POOL, s, run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = manager.alloc<test>(index);
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	manager.setVersion(MemContainerVersion_RELEASE);
+
+	std::cout << "Memory stack clear(release):		";
+	total = 0;
+	start = omp_get_wtime();
+	size_t index = manager.initAllocation(MemContainerType_BUFFER, s*run1);
+	end = omp_get_wtime();
+	total += end - start;	
+
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		manager.release<test>(index);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = manager.alloc<test>(index);
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	manager.setVersion(MemContainerVersion_DEBUG);
+
+	std::cout << "Memory stack clear(debug):		";
+	total = 0;
+	start = omp_get_wtime();
+	index = manager.initAllocation(MemContainerType_BUFFER, run1*s);
+	end = omp_get_wtime();
+	total += end - start;	
+
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		manager.release<test>(index);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = manager.alloc<test>(index);
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	manager.setVersion(MemContainerVersion_RELEASE);
+
+	std::cout << "Memory stack direct access:		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		MemStack stack(run1*s);
+		stack.startUp();
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = reinterpret_cast<test*>(stack.alloc(s));
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		stack.shutDown();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Memory pool direct access:		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		MemPool pool(s, run1);
+		pool.startUp(s, run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = reinterpret_cast<test*>(pool.alloc(s));
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		pool.shutDown();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "YOLO Memory pool direct access:		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		YoloMemPool pool;
+		pool.startUp(s, run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test* tmp = reinterpret_cast<test*>(pool.alloc());
+			tmp->t = i;
+		}
+		end = omp_get_wtime();
+		pool.shutDown();
+		total += end - start;
+	}
+	std::cout << total/(double) run2 << std::endl;
 	manager.shutDown();
 	system("pause");
 	return 0;

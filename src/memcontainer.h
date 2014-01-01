@@ -31,10 +31,13 @@ enum MemContainerVersion
 class MemContainer
 {
 public:
-	MemContainer(const size_t size = 0) : 
+	MemContainer() 
+	{}
+	MemContainer(const size_t size) : 
 		totalSpace_(size),
 		state_(MemContainerState_BROKEN)
 	{}
+
 
 	virtual ~MemContainer(){}
 
@@ -52,7 +55,7 @@ public:
 protected:
 	MemContainerState state_;
 	unsigned char* cursor_;
-	const size_t totalSpace_;
+	size_t totalSpace_;
 	size_t spaceLeft_;
 	unsigned char* begin_;
 
@@ -125,4 +128,29 @@ private:
 	//RO3
 	MemPool& operator=(MemPool& other);
 	MemPool(MemBuffer& other);
+};
+
+class YoloMemPool
+{
+public:
+	YoloMemPool()
+	{}
+	~YoloMemPool() {}
+
+	void startUp(const size_t sizeOfBlock, const size_t numberOfBlocks);
+	void shutDown();
+	unsigned char* alloc();
+	void release(unsigned char* ptr = nullptr) { releaseAddress(ptr); }
+
+
+private:
+	size_t blockSize_;
+	unsigned char* lastMemberOfPool_;
+	unsigned char* begin_;
+	unsigned char* cursor_;
+	void releaseAddress(unsigned char*);
+
+	//RO3
+	YoloMemPool& operator=(YoloMemPool& other);
+	YoloMemPool(YoloMemPool& other);
 };
