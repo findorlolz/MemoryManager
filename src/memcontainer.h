@@ -8,6 +8,8 @@ Niklas Smal Oct. 2013*/
 #include <cstdlib>
 #include <cassert>
 
+const static size_t  charSize = sizeof(char*);
+
 enum MemContainerType
 {
 	MemContainerType_STACK, 
@@ -51,6 +53,7 @@ public:
 	//Accessories
 	size_t getSpaceLeft() const { return spaceLeft_; }
 	const size_t getTotalSpace() const { return totalSpace_; }
+	unsigned char* getBegin() const { return begin_; }
 
 protected:
 	MemContainerState state_;
@@ -67,7 +70,7 @@ protected:
 class MemStack : public MemContainer
 {
 public:
-	explicit MemStack(const size_t size) : MemContainer(size) {}
+	explicit MemStack(const size_t sizeOfBlock, const size_t numberOfBlocks) : MemContainer(numberOfBlocks*sizeOfBlock + charSize*numberOfBlocks) {}
 	~MemStack() {}
 
 	virtual void startUp();
@@ -141,6 +144,7 @@ public:
 	void shutDown();
 	unsigned char* alloc();
 	void release(unsigned char*);
+	unsigned char* getBegin() const { return begin_; }
 
 
 private:
@@ -148,10 +152,6 @@ private:
 	unsigned char* lastMemberOfPool_;
 	unsigned char* begin_;
 	unsigned char* cursor_;
-
-	//RO3
-	YoloMemPool& operator=(YoloMemPool& other);
-	YoloMemPool(YoloMemPool& other);
 };
 
 class YoloMemBuffer
@@ -173,4 +173,28 @@ private:
 	//RO3
 	YoloMemBuffer& operator=(YoloMemBuffer& other);
 	YoloMemBuffer(YoloMemBuffer& other);
+};
+
+class YoloMemStack
+{
+public:
+	YoloMemStack()
+	{}
+	~YoloMemStack() {}
+
+	void startUp(const size_t, const size_t);
+	void shutDown();
+	unsigned char* push();
+	void pop();
+	void clear() { cursor_ = begin_; }
+	unsigned char* getBegin() const { return begin_; }
+
+private:
+	size_t blockSize_;
+	unsigned char* begin_;
+	unsigned char* cursor_;
+
+	//RO3
+	YoloMemStack& operator=(YoloMemStack& other);
+	YoloMemStack(YoloMemStack& other);
 };

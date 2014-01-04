@@ -16,6 +16,7 @@
     <ClCompile Include="src\memorymanager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\cVector.h" />
     <ClInclude Include="src\memcontainer.h" />
     <ClInclude Include="src\memorymanager.h" />
   </ItemGroup>

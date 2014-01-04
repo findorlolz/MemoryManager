@@ -1,5 +1,6 @@
 #include "memorymanager.h"
 #include <omp.h>
+#include "cVector.h"
 
 /*include only for debuging state*/
 //#include <vld.h>
@@ -99,6 +100,18 @@ int main()
 	t4->t = 4;
 	std::cout << "4 = " << t4->t << std::endl;
 	std::cout << "1 = " << t1->t << std::endl;
+	size_t stackIndex2 = manager.initAllocation(MemContainerType_POOL, sizeof(float), 100);
+	std::vector<test*> vec;
+	for(auto i = 0u; i < 100; ++i)
+	{
+		test* t = manager.alloc<test>(stackIndex2);
+		t->t = i;
+		vec.push_back(t);
+	}
+
+	for(auto i = 0u; i < 100; ++i)
+		std::cout << i << " = " << vec[i]->t << std::endl;
+
 
 	manager.shutDown();
 
@@ -288,7 +301,7 @@ int main()
 	for(auto j = 0u; j < run2; j++)
 	{
 		start = omp_get_wtime();
-		MemStack stack(run1*s);
+		MemStack stack(s, run1);
 		stack.startUp();
 		for(auto i = 0u; i < run1; i++)
 		{
@@ -354,8 +367,244 @@ int main()
 		total += end - start;
 	}
 	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "\nStart vector testing..." << std::endl;
+
+	std::cout << "Std::vector with push in each		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		std::vector<test> testVector1;
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "cVector with push in each		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		cVector<test> testVector1;
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "nsVector with push in each		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		nsVector<test> testVector1;
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Std::vector with reserve		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		std::vector<test> testVector1;
+		testVector1.reserve(run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Std::vector with preallocated access	";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		std::vector<test> testVector1(run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1[i]= tmp;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "nsVector with preallocated push		";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		nsVector<test> testVector1(run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "nsVector with preallocated access	";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		nsVector<test> testVector1(run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1[i] = tmp;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Std::vector with reserve push/pop	";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		std::vector<test> testVector1(run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.pop_back();
+		}
+
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Std::vector with preallocation push/pop ";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		std::vector<test> testVector1;
+		testVector1.reserve(run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.pop_back();
+		}
+
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "nsVector with preallocated push/pop	";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		nsVector<test> testVector1(run1);
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.push_back(tmp);
+		}
+		for(auto i = 0u; i < run1; i++)
+		{
+			test tmp;
+			tmp.t = i;
+			testVector1.pop_back();
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
 	manager.shutDown();
 	system("pause");
 	return 0;
 }
+/*
 
+int main()
+{
+	
+	cVector<size_t> vec;
+	for(auto i = 0u; i < 20u; ++i)
+		vec.push_back(i);
+	for(auto i = 0u; i < 20u; ++i)
+		std::cout << i << " = " << vec[i] << std::endl;
+
+	nsVector<size_t> nsVec2(8);
+	for(auto i = 0; i < 8u; ++i)
+		nsVec2.push_back(i);
+
+	std::cout << "Capacity: " << nsVec2.getCapacity() << std::endl; 
+
+	for(auto i = 0; i < 3u; ++i)
+		nsVec2.pop_back();
+
+	for(auto i = 0u; i < 3u; ++i)
+		nsVec2.push_back(i+10);
+
+	for(auto i = 0u; i < 8u; ++i)
+		std::cout << i << " = " << nsVec2[i] << std::endl; 
+
+	system("pause");
+	return 0;
+}
+*/

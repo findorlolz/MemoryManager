@@ -32,5 +32,8 @@
     <ClInclude Include="src\memorymanager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\cVector.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

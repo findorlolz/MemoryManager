@@ -37,7 +37,7 @@ size_t MemoryManager::initAllocationCall(MemContainerType type, const size_t siz
 	}
 	else if(type == MemContainerType_STACK)
 	{
-		MemStack* stack = new MemStack(size);
+		MemStack* stack = new MemStack(size, numOfBlocks);
 		stack->startUp();
 		containers_[index] = stack;
 	}

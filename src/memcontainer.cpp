@@ -70,11 +70,12 @@ unsigned char* MemStack::pushStack(size_t size)
 		return nullptr;
 	}
 
-	spaceLeft_ -= size; 
+	size_t totalBlock = (size+charSize);
 	unsigned char* address = cursor_;
-	cursor_ += size;
-	unsigned char** tmp = reinterpret_cast<unsigned char**>(cursor_);
+	unsigned char** tmp = reinterpret_cast<unsigned char**>(cursor_ + size);
 	tmp[0] = address;
+	cursor_ += totalBlock;
+	spaceLeft_ -= totalBlock; 
 	return address;
 }
 
@@ -90,7 +91,7 @@ void MemStack::popStack()
 		else
 			return;
 	}
-	unsigned char** tmp = reinterpret_cast<unsigned char**>(cursor_);
+	unsigned char** tmp = reinterpret_cast<unsigned char**>(cursor_ - charSize);
 	unsigned char* address = tmp[0];
 	size_t size = reinterpret_cast<size_t>(cursor_) - reinterpret_cast<size_t>(address);
 	spaceLeft_ += size;
@@ -99,7 +100,7 @@ void MemStack::popStack()
 
 void MemBuffer::startUp()
 {
-	unsigned char* ptr = reinterpret_cast<unsigned char*>(malloc(totalSpace_ + sizeof(char*)));
+	unsigned char* ptr = reinterpret_cast<unsigned char*>(malloc(totalSpace_ + charSize));
 	spaceLeft_ = totalSpace_;
 	begin_ = ptr;
 	cursor_ = ptr;
@@ -291,4 +292,32 @@ unsigned char* YoloMemBuffer::alloc(size_t size)
 	unsigned char* address = cursor_;
 	cursor_ += size;
 	return address;
+}
+
+void YoloMemStack::startUp(const size_t sizeOfBlock, const size_t numOfBlocks)
+{
+	unsigned char* ptr = reinterpret_cast<unsigned char*>(malloc(sizeOfBlock*numOfBlocks));
+	blockSize_ = sizeOfBlock;
+	begin_ = ptr;
+	cursor_ = ptr;
+}
+
+
+void YoloMemStack::shutDown()
+{
+	free(begin_);
+	begin_= nullptr;
+	cursor_ = nullptr;
+}
+
+unsigned char* YoloMemStack::push()
+{
+	unsigned char* address = cursor_;
+	cursor_ += blockSize_;
+	return address;
+}
+
+void YoloMemStack::pop()
+{
+	cursor_ -= blockSize_;
 }
