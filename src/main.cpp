@@ -17,6 +17,17 @@ struct test{
 	size_t t;
 };
 
+struct largerTest{
+	largerTest() : t(0), c(10.0f), ptr(nullptr) 
+	{
+		vec.reserve(10);
+	}
+	size_t t;
+	float c;
+	void* ptr;
+	std::vector<float> vec;
+};
+
 //Test memStack
 /*
 int main()
@@ -127,9 +138,13 @@ int main()
 	MemoryManager manager = MemoryManager::get();
 	const size_t run1 = 1000000;
 	const size_t run2 = 100;
+	const size_t run3 = 10;
+	const size_t run4 = 1000;
 	double total, start, end;
 	const size_t s = sizeof(test);
 	manager.startUp(MemContainerVersion_RELEASE);
+
+
 	std::cout << "Normal array				";
 	total = 0;
 	for(auto j = 0u; j < run2; j++)
@@ -574,6 +589,115 @@ int main()
 	}
 	std::cout << total/(double) run2 << std::endl;
 
+	std::cout << "\nVector testing with different datas" << std::endl;
+
+	std::cout << "nsVector float				";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		nsVector<float> testVector1(run1);
+		float tmp = 0.0f;
+		for(auto i = 0u; i < run1; i++)
+		{
+			testVector1[i] = tmp;
+			tmp++;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Std::vector float			";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		std::vector<float> testVector1(run1);
+		float tmp = 0.0f;
+		for(auto i = 0u; i < run1; i++)
+		{
+			testVector1[i]= tmp;
+			++tmp;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "nsVector double				";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		nsVector<double> testVector1(run1);
+		double tmp = 0.0f;
+		for(auto i = 0u; i < run1; i++)
+		{
+			testVector1[i] = tmp;
+			tmp++;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "Std::vector double			";
+	total = 0;
+	for(auto j = 0u; j < run2; j++)
+	{
+		start = omp_get_wtime();
+		std::vector<double> testVector1(run1);
+		double tmp = 0.0f;
+		for(auto i = 0u; i < run1; i++)
+		{
+			testVector1[i]= tmp;
+			++tmp;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run2 << std::endl;
+
+	std::cout << "nsVector some structure			";
+	total = 0;
+	for(auto j = 0u; j < run3; j++)
+	{
+		start = omp_get_wtime();
+		nsVector<largerTest> testVector1(run4);
+		for(auto i = 0u; i < run4; i++)
+		{
+			largerTest tmp;
+			testVector1[i] = tmp;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run3 << std::endl;
+
+	std::cout << "Std::vector some structure		";
+	total = 0;
+	for(auto j = 0u; j < run3; j++)
+	{
+		start = omp_get_wtime();
+		std::vector<largerTest> testVector1(run4);
+		for(auto i = 0u; i < run4; i++)
+		{
+			largerTest tmp;
+			testVector1[i] = tmp;
+		}
+		end = omp_get_wtime();
+		total += end - start;
+
+	}
+	std::cout << total/(double) run3 << std::endl;
+
+
 	manager.shutDown();
 	system("pause");
 	return 0;
@@ -582,28 +706,34 @@ int main()
 
 int main()
 {
-	
+
 	cVector<size_t> vec;
 	for(auto i = 0u; i < 20u; ++i)
 		vec.push_back(i);
 	for(auto i = 0u; i < 20u; ++i)
 		std::cout << i << " = " << vec[i] << std::endl;
 
-	nsVector<size_t> nsVec2(8);
+	std::cout << "Size: " << sizeof(double) << std::endl;
+	nsVector<double> nsVec2;
+	double d = 0.1234;
 	for(auto i = 0; i < 8u; ++i)
-		nsVec2.push_back(i);
-
+	{
+		nsVec2.push_back(d);
+		d++;
+	}
+	
 	std::cout << "Capacity: " << nsVec2.getCapacity() << std::endl; 
 
 	for(auto i = 0; i < 3u; ++i)
 		nsVec2.pop_back();
 
 	for(auto i = 0u; i < 3u; ++i)
-		nsVec2.push_back(i+10);
-
+	{
+		nsVec2.push_back(d);
+		d++;
+	}
 	for(auto i = 0u; i < 8u; ++i)
 		std::cout << i << " = " << nsVec2[i] << std::endl; 
-
 	system("pause");
 	return 0;
 }

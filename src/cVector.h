@@ -67,7 +67,7 @@ public:
 	nsVector() : size_(0), capacity_(0), data_(0) {}
 	nsVector(const size_t i) : size_(0), capacity_(i)
 	{
-		data_ = reinterpret_cast<T*>(malloc(capacity_*s));
+		data_ = reinterpret_cast<T*>(malloc(capacity_ * sizeof(T)));
 	}
 
 	~nsVector() { release(); }
@@ -78,10 +78,10 @@ public:
 	{
 		if(size_ == capacity_)
 		{
-			capacity_ = capacity_ ? capacity_ * 2 : 16;
+			capacity_ = capacity_ ? capacity_ * 2 : 8;
 			allocateAndCopy();
 		}
-		new((void*) (data_+size_)) T;
+		new((void*) (data_+size_)) T(v);
         ++size_;
 	}
 
@@ -97,7 +97,7 @@ public:
 private:
 	inline void allocateAndCopy()
 	{
-		T* newBegin = reinterpret_cast<T*>(malloc(capacity_*s));
+		T* newBegin = reinterpret_cast<T*>(malloc(capacity_*sizeof(T)));
 		copyAndDeleteRange(data_ , data_+size_, newBegin);
 		free(data_);
 		data_ = newBegin;
@@ -127,8 +127,8 @@ private:
 	{
 		if(data_ != nullptr)
 		{
-			free(data_);
 			deleteRange(data_ , data_ + size_);
+			free(data_);
 			data_ = nullptr;
 		}
 	}
